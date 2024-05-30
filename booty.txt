@@ -232,6 +232,388 @@ int main(){
 
 
 
+
+
+
+
+
+
+Semaphore
+
+
+
+#include <bits/stdc++.h>
+#include <semaphore.h>
+
+using namespace std;
+
+sem_t s1,s2,s3,s4;
+
+void* A(void* arg){
+    cout<<"A ";
+    sem_post(&s1);
+    return nullptr;
+}
+
+void* B(void* arg){
+    sem_wait(&s1);
+    cout<<"B ";
+    sem_post(&s2);
+    sem_post(&s2);
+    return nullptr;
+}
+
+void* C(void* arg){
+    sem_wait(&s2);
+    cout<<"C ";
+    sem_post(&s4);
+    return nullptr;
+}
+
+void* D(void* arg){
+    sem_wait(&s2);
+    cout<<"D ";
+    sem_post(&s3);
+    return nullptr;
+}
+
+void* E(void* arg){
+    sem_wait(&s3);
+   cout<<"E ";
+   sem_post(&s4);
+    return nullptr;
+}
+
+void* F(void* arg){
+    sem_wait(&s4);
+    sem_wait(&s4);
+    cout<<"F ";
+    return nullptr;
+}
+
+int main(){
+    sem_init(&s1,0,0);
+    sem_init(&s2,0,0);
+    sem_init(&s3,0,0);
+    sem_init(&s4,0,0);
+    pthread_t a,b,c,d,e,f;
+    pthread_create(&a,NULL,A,NULL);
+    pthread_create(&b,NULL,B,NULL);
+    pthread_create(&c,NULL,C,NULL);
+    pthread_create(&d,NULL,D,NULL);
+    pthread_create(&e,NULL,E,NULL);
+    pthread_create(&f,NULL,F,NULL);
+    pthread_join(a,NULL);
+    pthread_join(b,NULL);
+    pthread_join(c,NULL);
+    pthread_join(d,NULL);
+    pthread_join(e,NULL);
+    pthread_join(f,NULL);
+    return 0;
+}
+
+
+
+
+Piping
+
+#include <bits/stdc++.h>
+#include <sys/wait.h>
+
+using namespace std;
+
+// int main(){
+//     int fd[2];
+//     pipe(fd);
+//     int pid=fork();
+//     if(pid==0){
+//         int a=5;
+//         write(fd[1],&a,sizeof(a));
+//         exit(0);
+//     }
+//     wait(NULL);
+//     int a;
+//     read(fd[0],&a,sizeof(a));
+//     cout<<a<<endl;
+//     return 0;
+// }
+
+
+// int main(){
+//     int fd[2];
+//     pipe(fd);
+//     int pid=fork();
+//     if(pid==0){
+//         string a="ghsgh dfghdf dfyuyu";
+//         write(fd[1],a.c_str(),sizeof(a));
+//         exit(0);
+//     }
+//     wait(NULL);
+//     char a[100];
+//     read(fd[0],a,sizeof(a));
+//     cout<<a<<endl;
+//     return 0;
+// }
+
+// struct sensorData {
+//     int a,b;
+// };
+// int main(){
+//     int fd[2];
+//     pipe(fd);
+//     int pid=fork();
+//     if(pid==0){
+//         sensorData a={1,2};
+//         write(fd[1],&a,sizeof(sensorData));
+//         exit(0);
+//     }
+//     wait(NULL);
+//     sensorData a;
+//     read(fd[0],&a,sizeof(sensorData));
+//     cout<<a.a<<" "<<a.b<<endl;
+//     return 0;
+// }
+
+
+
+// int main(){
+//     int fd[2];
+//     pipe(fd);
+//     int pid=fork();
+//     if(pid==0){
+//         int a[]={1,2,3};
+//         write(fd[1],&a,sizeof(a));
+//         exit(0);
+//     }
+//     wait(NULL);
+//     int a[3];
+//     read(fd[0],&a,sizeof(a));
+//     for(int i=0;i<3;i++){
+//         cout<<a[i]<<" ";
+//     }
+//     return 0;
+// }
+
+int main(){
+    int fd[2];
+    pipe(fd);
+    int pid=fork();
+    if(pid==0){
+        int a[3][3]={{1,2,3},{4,5,6},{7,8,9}};
+        write(fd[1],&a,sizeof(a));
+        exit(0);
+    }
+    wait(NULL);
+    int a[3][3];
+    read(fd[0],&a,sizeof(a));
+    for(int i=0;i<3;i++){
+        for(int j=0;j<3;j++){
+            cout<<a[i][j]<<" ";
+        }
+        cout<<endl;
+    }
+    return 0;
+}
+
+
+
+
+Message Send
+
+
+#include <bits/stdc++.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <cstring>
+
+using namespace std;
+
+// struct msg_buffer {
+//     long type;
+//     int a;
+// };
+
+// int main(){
+//     int msgid=msgget((key_t)1234,0666 | IPC_CREAT);
+//     msg_buffer message;
+//     message.type=1;
+//     message.a=25;
+//     msgsnd(msgid,&message,sizeof(message.a),0);
+//     return 0;
+// }
+
+// struct msg_buffer {
+//     long type;
+//     char a[100];
+// };
+
+// int main(){
+//     int msgid=msgget((key_t)1245,0666 | IPC_CREAT);
+//     msg_buffer message;
+//     message.type=1;
+//     strcpy(message.a,"this is string for test");
+//     msgsnd(msgid,&message,sizeof(message.a),0);
+//     return 0;
+// }
+
+
+// struct sensorData {
+//     int a,b;
+// };
+
+// struct msg_buffer {
+//     long msg_type;
+//     sensorData data;
+// };
+
+// int main() {
+//     int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
+//     msg_buffer message;
+//     message.msg_type = 1;
+//     message.data.a = 25;
+//     message.data.b= 1013;
+
+//     msgsnd(msgid, &message, sizeof(message.data), 0);
+//     return 0;
+// }
+
+
+
+
+// struct msg_buffer {
+//     long msg_type;
+//     int a[3];
+// };
+
+// int main() {
+//     int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
+//     msg_buffer message;
+//     message.msg_type = 1;
+//     message.a[0] = 25;
+//     message.a[1] = 1013;
+//     message.a[2] = 100;
+
+//     msgsnd(msgid, &message, sizeof(message.a), 0);
+//     return 0;
+// }
+
+
+struct msg_buffer {
+    long msg_type;
+    int a[2][2];
+};
+
+int main() {
+    int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
+    msg_buffer message;
+    message.msg_type = 1;
+    for(int i=0;i<2;i++){
+        for(int j=0;j<2;j++){
+            message.a[i][j] = i+j;
+        }
+    }
+
+    msgsnd(msgid, &message, sizeof(message.a), 0);
+    return 0;
+}
+
+
+
+
+Message Recieve
+
+#include <bits/stdc++.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <cstring>
+
+using namespace std;
+
+// struct msg_buffer {
+//     long type;
+//     int a;
+// };
+
+// int main(){
+//     int msgid=msgget((key_t)1234,0666 | IPC_CREAT);
+//     msg_buffer message;
+//     msgrcv(msgid,&message,sizeof(message.a),1,0);
+//     cout<<"message : "<<message.a<<endl;
+//     return 0;
+// }
+
+// struct msg_buffer {
+//     long type;
+//     char a[100];
+// };
+
+// int main(){
+//     int msgid=msgget((key_t)1245,0666 | IPC_CREAT);
+//     msg_buffer message;
+//     msgrcv(msgid,&message,sizeof(message.a),1,0);
+//     cout<<"message : "<<message.a<<endl;
+//     return 0;
+// }
+
+
+// struct sensorData {
+//     int a,b;
+// };
+
+// struct msg_buffer {
+//     long msg_type;
+//     sensorData data;
+// };
+
+// int main() {
+//     int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
+//     msg_buffer message;
+
+//     msgrcv(msgid, &message, sizeof(message.data), 1, 0);
+//     cout << "Received sensor data: Temperature = " << message.data.a
+//          << ", Pressure = " << message.data.b << endl;
+//     return 0;
+// }
+
+
+// struct msg_buffer {
+//     long msg_type;
+//     int a[3];
+// };
+
+// int main() {
+//     int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
+//     msg_buffer message;
+
+//     msgrcv(msgid, &message, sizeof(message.a), 1,0);
+//     for(int i=0;i<3;i++){
+//         cout<<message.a[i]<<" ";
+//     }
+//     return 0;
+// }
+
+struct msg_buffer {
+    long msg_type;
+    int a[2][2];
+};
+
+int main() {
+    int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
+    msg_buffer message;
+
+    msgrcv(msgid, &message, sizeof(message.a), 1,0);
+    for(int i=0;i<2;i++){
+        for(int j=0;j<2;j++){
+            cout<<message.a[i][j]<<" ";
+        }
+    }
+    return 0;
+}
+
+
+
+
+
 Batch CheetSheet
 
 
@@ -832,379 +1214,3 @@ Grep check
 if grep -q 'foo' ~/.bash_history; then
   echo "You appear to have typed 'foo' in the past"
 fi
-
-
-
-
-
-Semaphore
-
-
-
-#include <bits/stdc++.h>
-#include <semaphore.h>
-
-using namespace std;
-
-sem_t s1,s2,s3,s4;
-
-void* A(void* arg){
-    cout<<"A ";
-    sem_post(&s1);
-    return nullptr;
-}
-
-void* B(void* arg){
-    sem_wait(&s1);
-    cout<<"B ";
-    sem_post(&s2);
-    sem_post(&s2);
-    return nullptr;
-}
-
-void* C(void* arg){
-    sem_wait(&s2);
-    cout<<"C ";
-    sem_post(&s4);
-    return nullptr;
-}
-
-void* D(void* arg){
-    sem_wait(&s2);
-    cout<<"D ";
-    sem_post(&s3);
-    return nullptr;
-}
-
-void* E(void* arg){
-    sem_wait(&s3);
-   cout<<"E ";
-   sem_post(&s4);
-    return nullptr;
-}
-
-void* F(void* arg){
-    sem_wait(&s4);
-    sem_wait(&s4);
-    cout<<"F ";
-    return nullptr;
-}
-
-int main(){
-    sem_init(&s1,0,0);
-    sem_init(&s2,0,0);
-    sem_init(&s3,0,0);
-    sem_init(&s4,0,0);
-    pthread_t a,b,c,d,e,f;
-    pthread_create(&a,NULL,A,NULL);
-    pthread_create(&b,NULL,B,NULL);
-    pthread_create(&c,NULL,C,NULL);
-    pthread_create(&d,NULL,D,NULL);
-    pthread_create(&e,NULL,E,NULL);
-    pthread_create(&f,NULL,F,NULL);
-    pthread_join(a,NULL);
-    pthread_join(b,NULL);
-    pthread_join(c,NULL);
-    pthread_join(d,NULL);
-    pthread_join(e,NULL);
-    pthread_join(f,NULL);
-    return 0;
-}
-
-
-
-
-Piping
-
-#include <bits/stdc++.h>
-#include <sys/wait.h>
-
-using namespace std;
-
-// int main(){
-//     int fd[2];
-//     pipe(fd);
-//     int pid=fork();
-//     if(pid==0){
-//         int a=5;
-//         write(fd[1],&a,sizeof(a));
-//         exit(0);
-//     }
-//     wait(NULL);
-//     int a;
-//     read(fd[0],&a,sizeof(a));
-//     cout<<a<<endl;
-//     return 0;
-// }
-
-
-// int main(){
-//     int fd[2];
-//     pipe(fd);
-//     int pid=fork();
-//     if(pid==0){
-//         string a="ghsgh dfghdf dfyuyu";
-//         write(fd[1],a.c_str(),sizeof(a));
-//         exit(0);
-//     }
-//     wait(NULL);
-//     char a[100];
-//     read(fd[0],a,sizeof(a));
-//     cout<<a<<endl;
-//     return 0;
-// }
-
-// struct sensorData {
-//     int a,b;
-// };
-// int main(){
-//     int fd[2];
-//     pipe(fd);
-//     int pid=fork();
-//     if(pid==0){
-//         sensorData a={1,2};
-//         write(fd[1],&a,sizeof(sensorData));
-//         exit(0);
-//     }
-//     wait(NULL);
-//     sensorData a;
-//     read(fd[0],&a,sizeof(sensorData));
-//     cout<<a.a<<" "<<a.b<<endl;
-//     return 0;
-// }
-
-
-
-// int main(){
-//     int fd[2];
-//     pipe(fd);
-//     int pid=fork();
-//     if(pid==0){
-//         int a[]={1,2,3};
-//         write(fd[1],&a,sizeof(a));
-//         exit(0);
-//     }
-//     wait(NULL);
-//     int a[3];
-//     read(fd[0],&a,sizeof(a));
-//     for(int i=0;i<3;i++){
-//         cout<<a[i]<<" ";
-//     }
-//     return 0;
-// }
-
-int main(){
-    int fd[2];
-    pipe(fd);
-    int pid=fork();
-    if(pid==0){
-        int a[3][3]={{1,2,3},{4,5,6},{7,8,9}};
-        write(fd[1],&a,sizeof(a));
-        exit(0);
-    }
-    wait(NULL);
-    int a[3][3];
-    read(fd[0],&a,sizeof(a));
-    for(int i=0;i<3;i++){
-        for(int j=0;j<3;j++){
-            cout<<a[i][j]<<" ";
-        }
-        cout<<endl;
-    }
-    return 0;
-}
-
-
-
-
-Message Send
-
-
-#include <bits/stdc++.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <cstring>
-
-using namespace std;
-
-// struct msg_buffer {
-//     long type;
-//     int a;
-// };
-
-// int main(){
-//     int msgid=msgget((key_t)1234,0666 | IPC_CREAT);
-//     msg_buffer message;
-//     message.type=1;
-//     message.a=25;
-//     msgsnd(msgid,&message,sizeof(message.a),0);
-//     return 0;
-// }
-
-// struct msg_buffer {
-//     long type;
-//     char a[100];
-// };
-
-// int main(){
-//     int msgid=msgget((key_t)1245,0666 | IPC_CREAT);
-//     msg_buffer message;
-//     message.type=1;
-//     strcpy(message.a,"this is string for test");
-//     msgsnd(msgid,&message,sizeof(message.a),0);
-//     return 0;
-// }
-
-
-// struct sensorData {
-//     int a,b;
-// };
-
-// struct msg_buffer {
-//     long msg_type;
-//     sensorData data;
-// };
-
-// int main() {
-//     int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
-//     msg_buffer message;
-//     message.msg_type = 1;
-//     message.data.a = 25;
-//     message.data.b= 1013;
-
-//     msgsnd(msgid, &message, sizeof(message.data), 0);
-//     return 0;
-// }
-
-
-
-
-// struct msg_buffer {
-//     long msg_type;
-//     int a[3];
-// };
-
-// int main() {
-//     int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
-//     msg_buffer message;
-//     message.msg_type = 1;
-//     message.a[0] = 25;
-//     message.a[1] = 1013;
-//     message.a[2] = 100;
-
-//     msgsnd(msgid, &message, sizeof(message.a), 0);
-//     return 0;
-// }
-
-
-struct msg_buffer {
-    long msg_type;
-    int a[2][2];
-};
-
-int main() {
-    int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
-    msg_buffer message;
-    message.msg_type = 1;
-    for(int i=0;i<2;i++){
-        for(int j=0;j<2;j++){
-            message.a[i][j] = i+j;
-        }
-    }
-
-    msgsnd(msgid, &message, sizeof(message.a), 0);
-    return 0;
-}
-
-
-
-
-Message Recieve
-
-#include <bits/stdc++.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <cstring>
-
-using namespace std;
-
-// struct msg_buffer {
-//     long type;
-//     int a;
-// };
-
-// int main(){
-//     int msgid=msgget((key_t)1234,0666 | IPC_CREAT);
-//     msg_buffer message;
-//     msgrcv(msgid,&message,sizeof(message.a),1,0);
-//     cout<<"message : "<<message.a<<endl;
-//     return 0;
-// }
-
-// struct msg_buffer {
-//     long type;
-//     char a[100];
-// };
-
-// int main(){
-//     int msgid=msgget((key_t)1245,0666 | IPC_CREAT);
-//     msg_buffer message;
-//     msgrcv(msgid,&message,sizeof(message.a),1,0);
-//     cout<<"message : "<<message.a<<endl;
-//     return 0;
-// }
-
-
-// struct sensorData {
-//     int a,b;
-// };
-
-// struct msg_buffer {
-//     long msg_type;
-//     sensorData data;
-// };
-
-// int main() {
-//     int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
-//     msg_buffer message;
-
-//     msgrcv(msgid, &message, sizeof(message.data), 1, 0);
-//     cout << "Received sensor data: Temperature = " << message.data.a
-//          << ", Pressure = " << message.data.b << endl;
-//     return 0;
-// }
-
-
-// struct msg_buffer {
-//     long msg_type;
-//     int a[3];
-// };
-
-// int main() {
-//     int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
-//     msg_buffer message;
-
-//     msgrcv(msgid, &message, sizeof(message.a), 1,0);
-//     for(int i=0;i<3;i++){
-//         cout<<message.a[i]<<" ";
-//     }
-//     return 0;
-// }
-
-struct msg_buffer {
-    long msg_type;
-    int a[2][2];
-};
-
-int main() {
-    int msgid = msgget((key_t)1236, 0666 | IPC_CREAT);
-    msg_buffer message;
-
-    msgrcv(msgid, &message, sizeof(message.a), 1,0);
-    for(int i=0;i<2;i++){
-        for(int j=0;j<2;j++){
-            cout<<message.a[i][j]<<" ";
-        }
-    }
-    return 0;
-}
